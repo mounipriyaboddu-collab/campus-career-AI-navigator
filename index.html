@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>Campus Career AI Navigator</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+:root{--bg:#f3f5f8;--card:#fff;--ink:#14213d;--mute:#5b6577;--line:#d9dee7;--have:#0f8b8d;--gap:#c9781a;--gapbg:#fbefdc;--havebg:#dcf1f1;
+
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1626;--card:#18223a;--ink:#eef1f7;--mute:#a3adc2;--line:#2c3856;--have:#4fd1d3;--gap:#f0b45f;--gapbg:#3a2c14;--havebg:#12383b}}
+
+:root[data-theme="dark"]{--bg:#0f1626;--card:#18223a;--ink:#eef1f7;--mute:#a3adc2;--line:#2c3856;--have:#4fd1d3;--gap:#f0b45f;--gapbg:#3a2c14;--havebg:#12383b}
+
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+
+*{box-sizing:border-box}
+
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Source Sans 3",system-ui,sans-serif}
+
+main{max-width:860px;margin:0 auto;padding:28px 18px 60px}
+
+h1,h2,h3{font-family:"Bricolage Grotesque",Georgia,sans-serif;line-height:1.15;margin:0}
+
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:700;max-width:16ch}
+
+h2{font-size:1.45rem;margin-bottom:6px}
+
+p.lead{color:var(--mute);max-width:60ch;margin:12px 0 0}
+
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:22px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+.chip{border:1.5px solid var(--line);background:transparent;color:var(--ink);padding:7px 14px;border-radius:99px;font:inherit;font-size:.95rem;cursor:pointer}
+
+.chip[aria-pressed=true]{background:var(--have);border-color:var(--have);color:#fff;font-weight:600}
+
+.chip:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid var(--gap);outline-offset:2px}
+
+.group{margin-top:16px;font-weight:600;color:var(--mute);font-size:.95rem}
+
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+
+.row:first-of-type{border-top:0}
+
+.bar{flex:1;height:10px;background:var(--line);border-radius:6px;overflow:hidden;min-width:60px}
+
+.bar i{display:block;height:100%;background:var(--have);border-radius:6px;transition:width .5s}
+
+.pct{width:3.2em;text-align:right;font-weight:600}
+
+.role{flex:0 0 11em}
+
+.role small{display:block;color:var(--mute);font-size:.82rem}
+
+.btn{background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:10px 18px;font:600 1rem "Source Sans 3",sans-serif;cursor:pointer}
+
+.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+
+select{font:inherit;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+
+@media(max-width:620px){.cols{grid-template-columns:1fr}.role{flex-basis:7.5em}}
+
+.box{border-radius:12px;padding:14px 16px}
+
+.box.have{background:var(--havebg)}.box.gap{background:var(--gapbg)}
+
+.box h3{font-size:1.05rem;margin-bottom:8px}
+
+.box ul{margin:0;padding-left:1.1em}
+
+.verdict{margin-top:14px;padding:14px 16px;border-left:5px solid var(--have);background:var(--bg);border-radius:6px}
+
+.plan{counter-reset:s;list-style:none;padding:0;margin:14px 0 0}
+
+.plan li{counter-increment:s;position:relative;padding:12px 0 12px 46px;border-top:1px solid var(--line)}
+
+.plan li::before{content:counter(s);position:absolute;left:0;top:12px;width:30px;height:30px;border-radius:50%;background:var(--gap);color:#fff;font-weight:700;display:grid;place-items:center}
+
+.plan b{display:block}.plan span{color:var(--mute);font-size:.95rem}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+
+[hidden]{display:none!important}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+
+</head>
+
+<body>
+
+<main>
+
+<h1>Campus Career AI Navigator</h1>
+
+<p class="lead">Built for students. Identify your skills, see which jobs suit them best, check whether they fit the domain you chose, and get a plan to learn what is missing.</p>
+
+
+<section id="s1">
+
+  <h2>1. Select your skills</h2>
+
+  <p class="lead" style="margin-top:0">Choose everything you can do with reasonable confidence.</p>
+
+  <div id="skills"></div>
+
+  <div class="actions"><button class="btn" id="go">Show matching jobs</button><span id="cnt" style="color:var(--mute)">0 selected</span></div>
+
+</section>
+
+
+<section id="s2" hidden>
+
+  <h2>2. Jobs that suit your skills</h2>
+
+  <p class="lead" style="margin-top:0">Match is the share of a job's required skills that you already have.</p>
+
+  <div id="jobs"></div>
+
+</section>
+
+
+<section id="s3" hidden>
+
+  <h2>3. Check a domain you want to enter</h2>
+
+  <p class="lead" style="margin-top:0">Choose a target job to see how relevant your skills are and what is missing.</p>
+
+  <div class="actions"><label for="target" class="group" style="margin:0">Target job</label><select id="target"></select></div>
+
+  <div id="report"></div>
+
+</section>
+
+</main>
+
+
+<script>
+
+const SK={
+
+"Programming":["Python","JavaScript","SQL","Java","Git","HTML","CSS","React","APIs","Object-Oriented Programming","Data Structures & Algorithms","Testing"],
+
+"Data":["Statistics","Excel","Data Visualization","Machine Learning","Data Cleaning","Data Analysis","Pandas","NumPy","Matplotlib","Power BI"],
+
+"Design":["UI Design","UX Design","User Research","Figma","Visual Design","Wireframing","Prototyping","Design Systems","Usability Testing","Responsive Design"],
+
+"Business":["Communication","Project Management","Marketing","Sales","Writing","Presentation Skills","Team Management","Problem Solving","Customer Research","Business Strategy","SEO","Content Creation","Analytics","Agile/Scrum"],
+
+"Technical Ops":["Linux","Cloud (AWS/Azure)","Networking","Security Basics","DevOps","Docker","CI/CD","System Administration","Cloud Security","Database Management"],
+
+"AI & ML":["Artificial Intelligence","Machine Learning","Deep Learning","Natural Language Processing","Generative AI","Large Language Models","Small Language Models","RAG","AI Agents","Prompt Engineering"],
+
+"Web Development":["Frontend Development","Backend Development","Full-Stack Development","React.js","Node.js","REST APIs","Database Integration","Authentication","Web Deployment","Responsive Web Design"],
+
+"Tools & Platforms":["VS Code","GitHub","Jupyter Notebook","Google Colab","Figma","Postman","Git","GitHub Copilot","ChatGPT","Claude"]
+
+};
+
+const J={
+
+"Web Developer":["HTML","CSS","JavaScript","React","APIs","Git","SQL"],
+
+"Full-Stack Developer":["Frontend Development","Backend Development","Full-Stack Development","React.js","Node.js","REST APIs","Database Integration","Authentication","Web Deployment","Postman","GitHub","VS Code","Responsive Web Design"],
+
+"Software Engineer":["Python","Java","JavaScript","Data Structures & Algorithms","Git","APIs","Database Management","Testing","Object-Oriented Programming"],
+
+"Data Analyst":["Excel","SQL","Statistics","Pandas","Data Visualization","Power BI","Data Cleaning","Data Analysis"],
+
+"Data Scientist":["Python","Statistics","Machine Learning","Pandas","NumPy","SQL","Matplotlib"],
+
+"AI/ML Engineer":["Python","Artificial Intelligence","Machine Learning","Deep Learning","Natural Language Processing","Jupyter Notebook","Google Colab"],
+
+"Generative AI Developer":["Generative AI","Large Language Models","Small Language Models","RAG","AI Agents","Prompt Engineering","APIs","ChatGPT","Claude","GitHub Copilot"],
+
+"UX Designer":["Figma","UI Design","User Research","Wireframing","Prototyping","Usability Testing","UX Design"],
+
+"UI Designer":["UI Design","Visual Design","Design Systems","Figma","Responsive Design","Prototyping"],
+
+"DevOps Engineer":["DevOps","Docker","CI/CD","Linux","Git","Cloud (AWS/Azure)"],
+
+"Cloud Engineer":["Cloud (AWS/Azure)","Linux","Networking","Docker","DevOps","CI/CD","Security Basics","Cloud Security","System Administration"],
+
+"Digital Marketer":["Marketing","Communication","SEO","Content Creation","Analytics","Customer Research","Sales","Writing"],
+
+"Project Manager":["Project Management","Communication","Team Management","Agile/Scrum","Problem Solving","Presentation Skills","Business Strategy"]
+
+};
+
+const L={
+
+"Data Structures & Algorithms":["Master arrays, trees, graphs and sorting; solve 50 practice problems",10],
+
+"Testing":["Write unit and integration tests with Jest or pytest",3],
+
+"SEO":["Learn keyword research and on-page SEO; optimise one site",3],
+
+"Content Creation":["Plan and publish a month of posts, articles or videos",4],
+
+"Analytics":["Use Google Analytics to track and report on a site",3],
+
+"Agile/Scrum":["Learn sprints, standups and backlogs; run a mock sprint",2],
+
+"Python":["Complete a beginner course, then build 3 small scripts",6],
+
+"JavaScript":["Learn core JS, then build an interactive web page",6],
+
+"SQL":["Practise joins and aggregates on a sample database",3],
+
+"Java":["Learn OOP basics and build a console app",8],
+
+"Git":["Use Git for every project; learn branch and merge",1],
+
+"HTML":["Build a multi-section page using semantic tags",2],
+
+"CSS":["Practise flexbox, grid and a responsive layout",3],
+
+"React":["Follow the official tutorial and build a small app",5],
+
+"APIs":["Call a public API and display the results",2],
+
+"Object-Oriented Programming":["Model classes, inheritance and encapsulation in a mini project",4],
+
+"Statistics":["Study descriptive stats, probability and hypothesis tests",5],
+
+"Excel":["Master pivot tables, lookups and charts",2],
+
+"Data Visualization":["Build dashboards in Tableau, Power BI or Matplotlib",3],
+
+"Machine Learning":["Take an intro ML course and finish one Kaggle project",10],
+
+"Data Cleaning":["Clean a messy public dataset end to end",2],
+
+"Data Analysis":["Analyse a dataset and present three findings",4],
+
+"Pandas":["Practise loading, filtering and grouping data",3],
+
+"NumPy":["Learn arrays and vectorised operations",2],
+
+"Matplotlib":["Recreate common chart types from a dataset",2],
+
+"Power BI":["Build a dashboard from a sample file",3],
+
+"UI Design":["Study layout, spacing and contrast; redesign one app screen",4],
+
+"UX Design":["Map a user journey for an app and propose fixes",5],
+
+"User Research":["Run 5 user interviews and write up findings",3],
+
+"Figma":["Follow a Figma tutorial and prototype one flow",2],
+
+"Visual Design":["Practise typography and colour in weekly exercises",4],
+
+"Wireframing":["Sketch low-fidelity screens for a full flow",2],
+
+"Prototyping":["Make a clickable prototype and test it with peers",3],
+
+"Design Systems":["Build a small component library with tokens",4],
+
+"Usability Testing":["Test a prototype with 5 users and report issues",3],
+
+"Responsive Design":["Adapt one design to mobile, tablet and desktop",3],
+
+"Communication":["Present your work to others; join a speaking group",3],
+
+"Project Management":["Learn Agile basics and run a small project on a board",4],
+
+"Marketing":["Learn SEO, email and social; run a test campaign",5],
+
+"Sales":["Practise discovery calls and objection handling",4],
+
+"Writing":["Write one short article each week and ask for edits",4],
+
+"Presentation Skills":["Deliver a 10-minute talk and collect feedback",3],
+
+"Team Management":["Lead a student project; practise delegation and feedback",5],
+
+"Problem Solving":["Solve one structured problem a week, such as coding puzzles",6],
+
+"Customer Research":["Run surveys and interviews, then summarise needs",3],
+
+"Business Strategy":["Study frameworks like SWOT and analyse one company",5],
+
+"Linux":["Use the command line daily; set up a small server",3],
+
+"Cloud (AWS/Azure)":["Prepare for an entry-level cloud certification",6],
+
+"Networking":["Learn TCP/IP, DNS and HTTP; try a lab",4],
+
+"Security Basics":["Study the OWASP Top 10 and basic hardening",3],
+
+"DevOps":["Learn the DevOps lifecycle and automate one deployment",6],
+
+"Docker":["Containerise a small app and run it locally",3],
+
+"CI/CD":["Set up a GitHub Actions pipeline for tests and deploy",3],
+
+"System Administration":["Manage users, services and logs on a Linux VM",5],
+
+"Cloud Security":["Learn IAM, encryption and shared responsibility",4],
+
+"Database Management":["Design schemas, indexes and backups in PostgreSQL or MySQL",5],
+
+"Artificial Intelligence":["Study AI fundamentals: search, learning and agents",5],
+
+"Deep Learning":["Train a neural network with PyTorch or TensorFlow",8],
+
+"Natural Language Processing":["Build a text classifier or sentiment analyser",6],
+
+"Generative AI":["Experiment with text and image generation tools",3],
+
+"Large Language Models":["Learn how LLMs work and call one through an API",4],
+
+"Small Language Models":["Run a small open model locally and compare it with a large one",3],
+
+"RAG":["Build a document Q&A app using embeddings and retrieval",5],
+
+"AI Agents":["Build an agent that uses tools to complete a task",5],
+
+"Prompt Engineering":["Practise structured prompts and test variations",2],
+
+"Frontend Development":["Build a complete responsive front end with a framework",6],
+
+"Backend Development":["Build a server with routes, logic and a database",6],
+
+"Full-Stack Development":["Ship one app with front end, back end and database",10],
+
+"React.js":["Learn components, state and hooks in a project",5],
+
+"Node.js":["Build an Express server with a few endpoints",4],
+
+"REST APIs":["Design and document CRUD endpoints",3],
+
+"Database Integration":["Connect an app to a database with an ORM",3],
+
+"Authentication":["Add login, sessions or JWT to an app",3],
+
+"Web Deployment":["Deploy an app on a free host with a custom domain",2],
+
+"Responsive Web Design":["Use media queries and fluid layouts on a real page",3],
+
+"VS Code":["Learn shortcuts, extensions and debugging",1],
+
+"GitHub":["Publish repos, open pull requests and use issues",1],
+
+"Jupyter Notebook":["Do an analysis in notebooks with notes and charts",1],
+
+"Google Colab":["Run a model on a free GPU in Colab",1],
+
+"Postman":["Test and save API requests in collections",1],
+
+"GitHub Copilot":["Use it on a project and review every suggestion",1],
+
+"ChatGPT":["Use it for drafting, debugging and learning with good prompts",1],
+
+"Claude":["Use it for analysis, writing and code review with clear prompts",1]
+
+};
+
+const sel=new Set();
+
+const $=id=>document.getElementById(id);
+
+const skillsEl=$("skills");const seen=new Set();
+
+for(const g in SK){
+
+  const h=document.createElement("div");h.className="group";h.textContent=g;skillsEl.append(h);
+
+  const w=document.createElement("div");w.className="chips";
+
+  SK[g].filter(s=>!seen.has(s)&&seen.add(s)).forEach(s=>{const b=document.createElement("button");b.className="chip";b.textContent=s;b.setAttribute("aria-pressed","false");
+
+    b.onclick=()=>{sel.has(s)?sel.delete(s):sel.add(s);b.setAttribute("aria-pressed",sel.has(s));$("cnt").textContent=sel.size+" selected";};
+
+    w.append(b)});
+
+  skillsEl.append(w);
+
+}
+
+const score=r=>J[r].filter(s=>sel.has(s)).length/J[r].length;
+
+$("go").onclick=()=>{
+
+  if(!sel.size){$("cnt").textContent="Select at least one skill first";return}
+
+  const ranked=Object.keys(J).sort((a,b)=>score(b)-score(a));
+
+  $("jobs").innerHTML=ranked.map(r=>{const p=Math.round(score(r)*100);
+
+    return `<div class="row"><div class="role"><b>${r}</b><small>${J[r].filter(s=>sel.has(s)).length} of ${J[r].length} skills</small></div><div class="bar"><i style="width:${p}%"></i></div><div class="pct">${p}%</div></div>`}).join("");
+
+  $("target").innerHTML=ranked.map(r=>`<option>${r}</option>`).join("");
+
+  $("s2").hidden=false;$("s3").hidden=false;
+
+  report();$("s2").scrollIntoView({behavior:"smooth"});
+
+};
+
+function report(){
+
+  const r=$("target").value,have=J[r].filter(s=>sel.has(s)),gap=J[r].filter(s=>!sel.has(s));
+
+  const p=Math.round(have.length/J[r].length*100),wk=gap.reduce((a,s)=>a+L[s][1],0);
+
+  const extra=[...sel].filter(s=>!J[r].includes(s));
+
+  let v=p>=80?"Your skills are highly relevant. You are close to job-ready; polish the few gaps below.":
+
+        p>=50?"Your skills are partly relevant. You have a base to build on, but the gaps below matter for hiring.":
+
+        p>0?"Your skills only partly overlap with this domain. A career switch is possible but needs focused learning.":
+
+        "None of your selected skills match this job directly. Start with the first items in the plan below.";
+
+  $("report").innerHTML=`
+
+  <div class="verdict"><b>${p}% relevant to ${r}.</b> ${v}${gap.length?` Estimated learning time: about ${wk} weeks of part-time study.`:""}</div>
+
+  <div class="cols">
+
+   <div class="box have"><h3>Skills you already have</h3>${have.length?"<ul>"+have.map(s=>`<li>${s}</li>`).join("")+"</ul>":"<p style='margin:0'>None yet.</p>"}</div>
+
+   <div class="box gap"><h3>Skill gaps</h3>${gap.length?"<ul>"+gap.map(s=>`<li>${s}</li>`).join("")+"</ul>":"<p style='margin:0'>No gaps found.</p>"}</div>
+
+  </div>
+
+  ${extra.length?`<p style="color:var(--mute);margin:14px 0 0">Your other skills (${extra.join(", ")}) are not required for this job but can set you apart.</p>`:""}
+
+  ${gap.length?`<h3 style="margin-top:22px">Learning plan</h3><ol class="plan">${gap.sort((a,b)=>L[a][1]-L[b][1]).map(s=>`<li><b>${s} <small style="font-weight:400;color:var(--mute)">(about ${L[s][1]} wk)</small></b><span>${L[s][0]}</span></li>`).join("")}</ol>`:""}`;
+
+}
+
+$("target").onchange=report;
+
+</script>
+
+</body>
+
+</html>
